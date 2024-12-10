@@ -67,12 +67,3 @@ class ForecastConverter:
 		print(f"Elevation {response.Elevation()} m asl")
 		print(f"Timezone {response.Timezone()} {response.TimezoneAbbreviation()}")
 		print(f"Timezone difference to GMT+0 {response.UtcOffsetSeconds()} s")
-
-
-coor = Coordinates()
-print(coor.longitude, " ", coor.latitude)
-metecl = MeteoClient()
-metecl.set_request_param(coor)
-forecast = metecl.get_forecast()
-forecats_df = ForecastConverter.hourly_as_pandas(forecast)
-print(forecats_df)
