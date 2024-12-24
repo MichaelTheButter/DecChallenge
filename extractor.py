@@ -10,9 +10,9 @@ class Coordinates:
 	LATITUDE = "latitude"
 	LONGITUDE = "longitude"
 
-	def __init__(self):
-		self.latitude: float = Coordinates.take_input(Coordinates.LATITUDE)
-		self.longitude: float = Coordinates.take_input(Coordinates.LONGITUDE)
+	def __init__(self, latitude: float, longitude: float):
+		self.latitude: float = latitude
+		self.longitude: float = longitude
 
 	@staticmethod
 	def take_input(parameter: str) -> float:
