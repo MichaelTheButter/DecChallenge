@@ -1,38 +1,35 @@
-from pyspark.sql import SparkSession
+from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql.types import *
 from pyspark.sql import functions as f
 from  datetime import datetime
+from  pipeline_config import Schemas, Paths
 
 
-def collect_to_parquet():
-    spark = (SparkSession.builder
-             .config("spark.jars.packages", "com.microsoft.azure:spark-mssql-connector_2.12:1.2.0")
-             .getOrCreate())
-
-    schema = StructType([
-        StructField("city", StringType(), True),
-        StructField("date", LongType(), True),
-        StructField("temperature_2m", DoubleType(), True)
-    ])
+def collect_to_parquet(spark: SparkSession):
+    schema = Schemas.get_json_schema()
 
     forecast_df = (spark.readStream
                    .format("json")
                    .schema(schema)
-                   .load("raw_json/"))
+                   .load(Paths.RAW_JSON))
 
-    created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    forecast_with_timestamp_df = (forecast_df.withColumn("created_at", f.lit(created_at).cast("timestamp")))
+    forecast_with_timestamp_df = add_created_at_column(forecast_df)
 
     query = (forecast_with_timestamp_df.coalesce(1)
              .writeStream
              .outputMode("append")
-             .option("path", "parquet/f.parquet")
+             .option("path", Paths.PARQUET)
              .option('format', 'parquet')
              .trigger(availableNow=True)
-             .option("checkpointLocation", "checkpoint/")
+             .option("checkpointLocation", Paths.JSON_CHECKPOINT)
              .start())
 
     query.awaitTermination()
+
+def add_created_at_column(df: DataFrame) -> DataFrame:
+
+    created_at = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    return df.withColumn(Schemas.CREATED_AT, f.lit(created_at).cast("timestamp"))
 
 
 

@@ -2,34 +2,41 @@ from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 from pyspark.sql import functions as f
 from  config import MsSqlCredentials
+from pipeline_config import Schemas, Paths
 
 
-spark = SparkSession.builder.config("spark.jars.packages", "com.microsoft.azure:spark-mssql-connector_2.12:1.2.0").getOrCreate()
-schema = StructType([
-    StructField("city", StringType(), True),
-    StructField("date", LongType(), True),
-    StructField("temperature_2m", DoubleType(), True),
-    StructField("created_at", TimestampType(), True)
-])
-
-
-df_2 = spark.read.schema(schema).json(path="raw_json/")
-df_3 =(df_2.withColumn("date", (f.col("date")/1000).cast("long"))
-       .withColumn("forecast_date", f.from_unixtime(f.col("date")).cast("timestamp"))
-       .withColumnRenamed("temperature_2m", "temperature")
-       .drop("date")
-       .dropDuplicates(["city", "forecast_date"]))
-df_3.show()
 url = f"jdbc:sqlserver://;databaseName=weather_db;user={MsSqlCredentials.USERNAME};password={MsSqlCredentials.PASSWORD};"
-
 server_name = "jdbc:sqlserver://DELLMM\\MIKE_MSSQL"
 database_name="weather_db"
-
 table_name = "forecast"
-
 connectionProperties = {
     "Trusted_Connection": "yes",
     "driver": "com.microsoft.sqlserver.jdbc.SQLServerDriver"
 }
 
-df_3.write.mode("append").jdbc(url=url, table=table_name, properties=connectionProperties)
+def save_batch_to_database(df, epoch_id):
+    transformed_df = (df.withColumn(Schemas.DATE, (f.col(Schemas.DATE) / 1000).cast("long"))
+            .withColumn(Schemas.FORECAST_DATE, f.from_unixtime(f.col(Schemas.DATE)).cast("timestamp"))
+            .withColumnRenamed(Schemas.TEMPERATURE_2M, Schemas.TEMPERATURE)
+            .drop(Schemas.DATE)
+            .dropDuplicates([Schemas.CITY, Schemas.FORECAST_DATE]))
+
+    (transformed_df.write
+     .mode("append")
+     .jdbc(url=url, table=table_name, properties=connectionProperties))
+
+
+def run_db_loader(spark: SparkSession):
+    schema = Schemas.get_parquet_schema()
+
+    forecast_df = (spark.readStream
+                   .schema(schema)
+                   .parquet(path=Paths.PARQUET))
+
+    db_query = (forecast_df.writeStream
+     .option("checkpointLocation", Paths.PARQUET_CHECKPOINT)
+     .trigger(availableNow=True)
+     .foreachBatch(save_batch_to_database)
+     .start())
+
+    db_query.awaitTermination()

@@ -1,6 +1,7 @@
 from pandas import DataFrame
 from datetime import datetime
 from config import AwsCredentials
+from pipeline_config import Paths
 
 AWS_S3_BUCKET_NAME = 'pkm-bucket'
 AWS_REGION = 'eu-west-3'
@@ -36,6 +37,6 @@ class S3Controller:
                 }
             )
         else:
-            df.to_json(f"raw_json/{file_name}.json", orient='records')
+            df.to_json(f"{Paths.RAW_JSON}{file_name}.json", orient='records')
 
 

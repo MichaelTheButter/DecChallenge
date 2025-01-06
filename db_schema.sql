@@ -10,7 +10,7 @@ CREATE TABLE forecast (
     city VARCHAR,
     forecast_date DATETIME,
     temperature DECIMAL(18,5),
-    created_at TIMESTAMP,
+    created_at DATETIME,
     UNIQUE (city, forecast_date),
     FOREIGN KEY (city) REFERENCES city(city_name)
 );
@@ -23,6 +23,6 @@ CREATE TABLE stats (
     min_temp DECIMAL(18,5),
     st_month DECIMAL(18,5),
     st_year INTEGER,
-    last_update TIMESTAMP,
+    last_update DATETIME,
     FOREIGN KEY (city) REFERENCES city(city_name)
 );
