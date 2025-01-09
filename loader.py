@@ -1,8 +1,8 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import *
 from pyspark.sql import functions as f
-from  config import MsSqlCredentials
-from pipeline_config import Schemas, Paths
+from config.config import MsSqlCredentials
+from config.pipeline_config import Schemas, Paths
 
 
 url = f"jdbc:sqlserver://;databaseName=weather_db;user={MsSqlCredentials.USERNAME};password={MsSqlCredentials.PASSWORD};"

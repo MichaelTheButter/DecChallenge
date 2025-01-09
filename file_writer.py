@@ -1,7 +1,7 @@
 from pandas import DataFrame
 from datetime import datetime
 from config import AwsCredentials
-from pipeline_config import Paths
+from config.pipeline_config import Paths
 
 AWS_S3_BUCKET_NAME = 'pkm-bucket'
 AWS_REGION = 'eu-west-3'

@@ -1,7 +1,7 @@
 from extractor import MeteoClient, ForecastConverter
-from file_loader import S3Controller
+from file_writer import S3Controller
 from city_mapper import CityMapper, CityInput
-from  pipeline_config import get_spark_session
+from config.pipeline_config import get_spark_session
 from json_to_parquet import collect_to_parquet
 from loader import run_db_loader
 import orchestrator
