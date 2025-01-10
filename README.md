@@ -1,6 +1,6 @@
 # December Challenge: Weather Data Pipeline
 
-![Project Logo](images/dec_logo.png)
+<img src="images/dec_logo.png" alt="Project Logo" width="200"/>
 
 ## Overview
 
