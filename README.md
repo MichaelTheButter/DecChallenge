@@ -1,6 +1,6 @@
 # December Challenge: Weather Data Pipeline
 
-![Project Logo](images\dec_logo.png)
+![Project Logo](images/dec_logo.png)
 
 ## Overview
 
@@ -33,8 +33,8 @@ Load the transformed data into a relational database using Spark.
 - `main.py`: The main entry point of the application.
 - `extractor.py`: Contains classes for fetching and converting weather data.
 - `file_writer.py`: Handles saving data to disk or cloud storage.
-- `json_to_parquet.py`: Spark application for reading JSON files and writing Parquet files.
-- `loader.py`: Spark application for loading data into a relational database.
+- `json_to_parquet.py`: Spark functions to transform JSON to Parquet files.
+- `loader.py`: Spark functions for loading data into a relational database.
 - `config/`: Configuration files for database credentials, schema definitions, and paths.
 
 ## How to Run
